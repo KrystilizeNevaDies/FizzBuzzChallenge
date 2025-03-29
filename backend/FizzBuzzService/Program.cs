@@ -1,9 +1,11 @@
 using FizzBuzzService.Services;
+using FizzBuzzService.Services.Database;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the containers
 builder.Services.AddSingleton<DatabaseService>();
 builder.Services.AddSingleton<GameStorageService>();
+builder.Services.AddSingleton<GameRuntimeService>();
 
 builder.Services.AddControllers();
 

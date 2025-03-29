@@ -1,9 +1,6 @@
-﻿using System.Data.Common;
-using FizzBuzzService.Models;
+﻿using FizzBuzzService.Models;
 using FizzBuzzService.Services.Database;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using SQLite;
 
 namespace FizzBuzzService.Services;
 
@@ -72,7 +69,7 @@ public class GameStorageService(DatabaseService databaseService)
     /// </summary>
     /// <param name="gameCode">The code of the game to delete</param>
     /// <returns>An error, or null if successful</returns>
-    public async Task<ActionResult> DeleteGame(string gameCode)
+    public async Task<StatusCodeResult> DeleteGame(string gameCode)
     {
         var db = await databaseService.UseConnection();
         db.CreateTable<GameStorage>();

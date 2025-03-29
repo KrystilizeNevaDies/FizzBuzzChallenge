@@ -9,5 +9,6 @@ public class GameStorage {
     public string Game { get; set; }
 
     public long Created { get; set; }
+
     public long Modified { get; set; }
 }

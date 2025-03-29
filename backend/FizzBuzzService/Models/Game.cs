@@ -1,26 +1,33 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 using FizzBuzzService.Utilities;
 using FizzBuzzService.Utilities.Json;
 namespace FizzBuzzService.Models;
 
-public record struct Game(string DisplayName, ICondition condition)
+public class Game(string DisplayName, Condition condition)
 {
+    [JsonRequired]
+    public string DisplayName { get; init; } = DisplayName;
+
+    [JsonRequired]
+    public Condition condition { get; init; } = condition;
+
     public static Game Parse(string json)
     {
         var options = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             Converters = {
-                new UnionConverter<ICondition>.Factory(),
-                new UnionConverter<IStrValue>.Factory(),
-                new UnionConverter<INumValue>.Factory()
+                new UnionConverter<Condition>.Factory(),
+                new UnionConverter<StrValue>.Factory(),
+                new UnionConverter<NumValue>.Factory()
             }
         };
-        return JsonSerializer.Deserialize<Game>(json, options);
+        return JsonSerializer.Deserialize<Game>(json, options)!;
     }
 }
 
-public record struct Context(double Query, string Response);
+public record Context(double Query, string Response);
 
 [UnionTag("type")]
 [UnionCase(typeof(Literal), "literal")]
@@ -29,42 +36,54 @@ public record struct Context(double Query, string Response);
 [UnionCase(typeof(All), "all")]
 [UnionCase(typeof(First), "first")]
 [UnionCase(typeof(Blank), "blank")]
-public interface ICondition
+public abstract class Condition
 {
-    bool Evaluate(Context context);
+    public abstract string type { get; init; }
 
-    public record struct Literal(bool value) : ICondition
+    public abstract bool Evaluate(Context context);
+
+    public class Literal(bool value) : Condition
     {
-        public bool Evaluate(Context context) => value;
+        public override string type { get; init; } = "literal";
+        public bool value { get; init; } = value;
+        public override bool Evaluate(Context context) => value;
     }
 
-    public record struct NumEquals(List<INumValue> values) : ICondition
+    public class NumEquals(List<NumValue> values) : Condition
     {
-        public bool Evaluate(Context context)
+        public override string type { get; init; } = "num-equals";
+        public List<NumValue> values { get; init; } = values;
+        public override bool Evaluate(Context context)
         {
             var doubles = values.Select(value => value.Evaluate(context)).ToList();
             return doubles.Count != 0 && doubles.All(value => Utils.EqualsTolerant(value, doubles[0]));
         }
     }
 
-    public record struct StrEquals(List<IStrValue> values) : ICondition
+    public class StrEquals(List<StrValue> values) : Condition
     {
-        public bool Evaluate(Context context)
+        public override string type { get; init; } = "str-equals";
+        public List<StrValue> values { get; init; } = values;
+        public override bool Evaluate(Context context)
         {
             var strings = values.Select(value => value.Evaluate(context)).ToList();
             return strings.Count != 0 && strings.All(value => value.Equals(strings[0]));
         }
     }
 
-    public record struct All(List<ICondition> conditions) : ICondition
+    public class All(List<Condition> conditions) : Condition
     {
-        public bool Evaluate(Context context) => conditions.All(condition => condition.Evaluate(context));
+        public override string type { get; init; } = "all";
+        public List<Condition> conditions { get; init; } = conditions;
+        public override bool Evaluate(Context context) => conditions.All(condition => condition.Evaluate(context));
     }
 
-    public record struct First(List<First.Candidate> candidates) : ICondition
+    public class First(List<First.Candidate> candidates) : Condition
     {
+        public override string type { get; init; } = "first";
+        public List<Candidate> candidates { get; init; } = candidates;
 
-        public bool Evaluate(Context context)
+        public override bool Evaluate(Context context)
         {
             foreach (var candidate in candidates)
             {
@@ -76,12 +95,13 @@ public interface ICondition
             return false;
         }
 
-        public record struct Candidate(ICondition test, ICondition value);
+        public record Candidate(Condition test, Condition value);
     }
 
-    public record struct Blank : ICondition
+    public class Blank : Condition
     {
-        public bool Evaluate(Context context) => false;
+        public override string type { get; init; } = "blank";
+        public override bool Evaluate(Context context) => false;
     }
 }
 
@@ -89,23 +109,29 @@ public interface ICondition
 [UnionCase(typeof(Literal), "literal")]
 [UnionCase(typeof(Response), "response")]
 [UnionCase(typeof(Blank), "blank")]
-public interface IStrValue
+public abstract class StrValue
 {
-    string Evaluate(Context context);
+    public abstract string type { get; init; }
 
-    public record struct Literal(string value) : IStrValue
+    public abstract string Evaluate(Context context);
+
+    public class Literal(string value) : StrValue
     {
-        public string Evaluate(Context context) => value;
+        public override string type { get; init; } = "literal";
+        public string value { get; init; } = value;
+        public override string Evaluate(Context context) => value;
     }
 
-    public record struct Response : IStrValue
+    public class Response : StrValue
     {
-        public string Evaluate(Context context) => context.Response;
+        public override string type { get; init; } = "response";
+        public override string Evaluate(Context context) => context.Response;
     }
 
-    public record struct Blank : IStrValue
+    public class Blank : StrValue
     {
-        public string Evaluate(Context context) => "";
+        public override string type { get; init; } = "blank";
+        public override string Evaluate(Context context) => "";
     }
 }
 
@@ -115,28 +141,38 @@ public interface IStrValue
 [UnionCase(typeof(Mod), "mod")]
 [UnionCase(typeof(FromString), "from-string")]
 [UnionCase(typeof(Blank), "blank")]
-public interface INumValue
+public abstract class NumValue
 {
-    double Evaluate(Context context);
+    public abstract string type { get; init; }
 
-    public record struct Literal(double value) : INumValue
+    public abstract double Evaluate(Context context);
+
+    public class Literal(double value) : NumValue
     {
-        public double Evaluate(Context context) => value;
+        public override string type { get; init; } = "literal";
+        public double value { get; init; } = value;
+        public override double Evaluate(Context context) => value;
     }
 
-    public record struct Query : INumValue
+    public class Query : NumValue
     {
-        public double Evaluate(Context context) => context.Query;
+        public override string type { get; init; } = "query";
+        public override double Evaluate(Context context) => context.Query;
     }
 
-    public record struct Mod(INumValue a, INumValue N) : INumValue
+    public class Mod(NumValue a, NumValue n) : NumValue
     {
-        public double Evaluate(Context context) => a.Evaluate(context) % N.Evaluate(context);
+        public override string type { get; init; } = "mod";
+        public NumValue a { get; init; } = a;
+        public NumValue n { get; init; } = n;
+        public override double Evaluate(Context context) => a.Evaluate(context) % n.Evaluate(context);
     }
 
-    public record struct FromString(IStrValue str) : INumValue
+    public class FromString(StrValue str) : NumValue
     {
-        public double Evaluate(Context context)
+        public override string type { get; init; } = "from-string";
+        public StrValue str { get; init; } = str;
+        public override double Evaluate(Context context)
         {
             try
             {
@@ -149,8 +185,9 @@ public interface INumValue
         }
     }
 
-    public record struct Blank : INumValue
+    public class Blank : NumValue
     {
-        public double Evaluate(Context context) => double.NaN;
+        public override string type { get; init; } = "blank";
+        public override double Evaluate(Context context) => double.NaN;
     }
 }

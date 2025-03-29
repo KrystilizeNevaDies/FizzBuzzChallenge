@@ -1,4 +1,3 @@
-using FizzBuzzService.Models;
 using FizzBuzzService.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,7 +5,7 @@ namespace FizzBuzzService.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class GameRuntimeController (ILogger<GameRuntimeController> logger, GameStorageService gameStorage) : ControllerBase
+public class GameRuntimeController (ILogger<GameRuntimeController> logger, GameRuntimeService gameRuntime) : ControllerBase
 {
 
     [HttpGet]
@@ -17,18 +16,13 @@ public class GameRuntimeController (ILogger<GameRuntimeController> logger, GameS
     {
         try
         {
-            var gameData = await gameStorage.GetGameByCode(gameCode);
-
-            if (gameData == null)
+            return await gameRuntime.Run(gameCode, query, response) switch
             {
-                return NotFound($"Game not found with code \"{gameCode}\"");
-            }
-
-            var game = Game.Parse(gameData.Game);
-            var context = new Context(query, response);
-            var result = game.condition.Evaluate(context);
-
-            return Ok(result);
+                GameRuntimeService.RunResult.Success success => Ok(success.Result),
+                GameRuntimeService.RunResult.GameNotFound => NotFound($"Game not found with code \"{gameCode}\""),
+                GameRuntimeService.RunResult.Error error => Problem(error.UserSafeError),
+                _ => Problem()
+            };
         }
         catch (Exception e)
         {
@@ -41,20 +35,17 @@ public class GameRuntimeController (ILogger<GameRuntimeController> logger, GameS
     [Route("Query/{gameCode}")]
     [ProducesResponseType(typeof(double), 200)]
     [ProducesResponseType(typeof(void), 404)]
-    public async Task<ActionResult> Run([FromRoute] string gameCode)
+    public async Task<ActionResult> Query([FromRoute] string gameCode)
     {
         try
         {
-            var gameData = await gameStorage.GetGameByCode(gameCode);
-
-            if (gameData == null)
+            return await gameRuntime.Query(gameCode) switch
             {
-                return NotFound($"Game not found with code \"{gameCode}\"");
-            }
-
-            var query = (double) Random.Shared.NextInt64(1000);
-
-            return Ok(query);
+                GameRuntimeService.QueryResult.Success success => Ok(success.Result),
+                GameRuntimeService.QueryResult.GameNotFound => NotFound(),
+                GameRuntimeService.QueryResult.Error error => Problem(error.UserSafeError),
+                _ => Problem()
+            };
         }
         catch (Exception e)
         {

@@ -1,6 +1,6 @@
 ﻿namespace FizzBuzzService.Utilities.Json;
 
-[AttributeUsage(AttributeTargets.Interface)]
+[AttributeUsage(AttributeTargets.Class)]
 public sealed class UnionTagAttribute : Attribute
 {
     public string JsonPropertyName { get; }
@@ -8,7 +8,7 @@ public sealed class UnionTagAttribute : Attribute
     public UnionTagAttribute(string jsonPropertyName) => JsonPropertyName = jsonPropertyName;
 }
 
-[AttributeUsage(AttributeTargets.Interface, AllowMultiple = true)]
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public sealed class UnionCaseAttribute : Attribute
 {
     public Type CaseType { get; }
