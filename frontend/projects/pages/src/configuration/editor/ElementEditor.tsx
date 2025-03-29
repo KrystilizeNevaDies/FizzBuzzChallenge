@@ -36,9 +36,7 @@ export default function ElementEditor<T extends Element>({
       <Group
         justify="center"
         align="center"
-        m={4}
-        miw={128}
-        mih={64}
+        m={8}
       >
         {children}
         {value.type !== 'blank' && (

@@ -1,12 +1,12 @@
 import {
-  ActionIcon, Group, LoadingOverlay, NativeSelect, Space, Text, Title,
+  ActionIcon, Anchor, Group, LoadingOverlay, NativeSelect, Space, Text, Title,
 } from '@mantine/core';
 import { useDocumentTitle, useInputState } from '@mantine/hooks';
 import { Game } from 'common/src/logic/game.ts';
 import { useQuery } from '@tanstack/react-query';
 import { DeepReadonly } from 'common/src/util/util.ts';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
+import {faPlay, faPlus, faTrash} from '@fortawesome/free-solid-svg-icons';
 import React, { useState } from 'react';
 import { GAME_STORAGE_API } from 'common/src/network/server.ts';
 import GameEditor from './editor/GameEditor.tsx';
@@ -91,14 +91,13 @@ export default function ConfigurationPage() {
 
   return (
     <>
-      <Title>FizzBuzz</Title>
-      <Text size="lg">Configuration</Text>
-      <Space h={64} />
-      <Group align="end">
+      <Title>Configuration</Title>
+      <Space h="sm" />
+      <Group align="end" justify="center">
         <NativeSelect
           radius="xs"
-          label="Game"
           value={selection ?? undefined}
+          maw={256}
           data={(games ?? []).map((storage) => ({
             value: storage.gameCode,
             label: `${storage.gameCode} - ${storage.game.displayName}`,
@@ -116,6 +115,15 @@ export default function ConfigurationPage() {
           <FontAwesomeIcon icon={faTrash} />
         </ActionIcon>
         )}
+        <Anchor href={`/game/${game?.gameCode}`}>
+          <ActionIcon
+            size="lg"
+            color="cyan"
+            variant="light"
+          >
+            <FontAwesomeIcon icon={faPlay} />
+          </ActionIcon>
+        </Anchor>
         <ActionIcon
           color="cyan"
           variant="light"
@@ -125,14 +133,13 @@ export default function ConfigurationPage() {
           <FontAwesomeIcon icon={faPlus} />
         </ActionIcon>
       </Group>
-      <Space h={64} />
+      <Space h="sm" />
       <LoadingOverlay visible={isLoading} zIndex={1000} overlayProps={{ radius: 'sm', blur: 2 }} />
       {selection != null && game == null && <Text>No game found for that name.</Text>}
       {selection != null && game != null && (
       <GameEditor
         game={game.game!}
         updateGame={updateGame}
-        playGameLink={`/game/${game?.gameCode}`}
       />
       )}
     </>

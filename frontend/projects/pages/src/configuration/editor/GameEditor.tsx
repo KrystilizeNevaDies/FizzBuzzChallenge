@@ -10,10 +10,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlay } from '@fortawesome/free-solid-svg-icons';
 import ConditionEditor from './ConditionEditor.tsx';
 
-const GameEditor = hashMemo(({ game, updateGame, playGameLink }: {
+const GameEditor = hashMemo(({ game, updateGame }: {
   game: DeepReadonly<Game>
   updateGame: (newGame: DeepReadonly<Game>) => void
-  playGameLink: string
 }) => {
   const [displayName, setDisplayName] = useInputState<string>(game.displayName);
   const [condition, setCondition] = useInputState<DeepReadonly<Condition>>(game.condition);
@@ -32,22 +31,6 @@ const GameEditor = hashMemo(({ game, updateGame, playGameLink }: {
 
   return (
     <>
-      <Group justify="center">
-        <Text size="lg">
-          Currently Configuring &quot;
-          {game.displayName}
-          &quot;
-        </Text>
-        <a href={playGameLink}>
-          <ActionIcon
-            size="lg"
-            color="cyan"
-            variant="light"
-          >
-            <FontAwesomeIcon icon={faPlay} />
-          </ActionIcon>
-        </a>
-      </Group>
       <Divider mt={8} mb={8} />
       <Center>
         <Stack>
