@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NJsonSchema" Version="11.1.0" />
+    <PackageReference Include="NJsonSchema.CodeGeneration" Version="11.1.0" />
+    <PackageReference Include="NJsonSchema.CodeGeneration.CSharp" Version="11.1.0" />
+    <PackageReference Include="NJsonSchema.CodeGeneration.TypeScript" Version="11.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="bin\Debug\net8.0\gameSchema.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FizzBuzzService\FizzBuzzService.csproj" />
+  </ItemGroup>
+
+</Project>
