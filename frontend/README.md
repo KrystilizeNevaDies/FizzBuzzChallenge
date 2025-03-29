@@ -27,13 +27,16 @@ Project is organised into three yarn workspaces, `client`, `common`, and `pages`
 - `common` - Non-ui logic and api client staging.
 - `pages` - The frontend pages and routing.
 
+### Future Features
+
+- Migrate to JsonSchema-based visual editor
+  - `npx ts-json-schema-generator --path 'src/logic/game.ts' --type 'Game'`
+  - The idea is that if you create a sufficiently usable generic json-schema based json editor, you can avoid
+    all the platform-specific ui logic and focus more on clarity.
+- Live-Preview game condition state in editor
+
 ### Things to do before submission:
-- Documentation on building and running tests
-- Documentation on running the stack
 - Reread pdf document
 - Add info to each element in the editor
-- fix modified fields not indicating modification
-- fix editor loading overlay not being positioned correctly
 - Setup vite equivalent of webpack env variables. Replace hardcoded url with config
 - Enforce no negative in backend
-- Mock test the rest api
