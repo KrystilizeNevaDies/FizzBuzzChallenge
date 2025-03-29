@@ -1,6 +1,0 @@
-@FizzBuzzService_HostAddress = http://localhost:5108
-
-GET {{FizzBuzzService_HostAddress}}/GameStorage/Get/{{$gameCode}}
-Accept: application/json
-
-###
