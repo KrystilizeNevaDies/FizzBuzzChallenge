@@ -59,7 +59,7 @@ function NumEqualsConditionEditor({ condition, setCondition, original }: Conditi
   return (
     <>
       {makeKeys(join(condition.values.map((value, i) => {
-        const originalElementNum = original === 'none' ? 'none' : original?.values[i] ?? 'none';
+        const originalElementNum = original === 'none' ? 'none' : original?.values?.[i] ?? 'none';
         return <NumEditor num={value} setNum={(num) => onSetNum(num, i)} original={originalElementNum} />;
       }), <Badge>=</Badge>))}
       <NumEditor
@@ -186,8 +186,8 @@ function FirstConditionEditor({ condition, setCondition, original }: ConditionEd
       <Paper withBorder p={8}>
         <Stack justify="flex-start" align="start">
           {makeKeys(join(condition.candidates.map(({ test, value }, i) => {
-            const originalTest = original === 'none' ? 'none' : original.candidates[i]?.test ?? 'none';
-            const originalValue = original === 'none' ? 'none' : original.candidates[i]?.value ?? 'none';
+            const originalTest = original === 'none' ? 'none' : original?.candidates?.[i]?.test ?? 'none';
+            const originalValue = original === 'none' ? 'none' : original?.candidates?.[i]?.value ?? 'none';
 
             return (
               <Paper withBorder key={i} w="100%">
