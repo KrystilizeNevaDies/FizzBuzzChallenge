@@ -40,3 +40,4 @@ Project is organised into three yarn workspaces, `client`, `common`, and `pages`
 - Add info to each element in the editor
 - Setup vite equivalent of webpack env variables. Replace hardcoded url with config
 - Enforce no negative in backend
+- Gracefully handle errors when calling the backend
